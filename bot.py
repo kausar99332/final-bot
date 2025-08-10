@@ -1,36 +1,57 @@
 import os
-import telebot
-from flask import Flask, request
+import logging
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+# .env লোড করা
+load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = os.getenv("CHANNEL_ID")
-GROUP_ID = os.getenv("GROUP_ID")
-WEBAPP_URL = os.getenv("WEBAPP_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+MONETAG_LINK = os.getenv("MONETAG_LINK")
 
-bot = telebot.TeleBot(BOT_TOKEN)
-server = Flask(__name__)
+# লগিং সেটআপ
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
-# Start command
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    chat_id = message.chat.id
-    first_name = message.from_user.first_name
-    markup = telebot.types.InlineKeyboardMarkup()
-    btn1 = telebot.types.InlineKeyboardButton("📱 Open App", web_app=telebot.types.WebAppInfo(WEBAPP_URL))
-    markup.add(btn1)
-    bot.send_message(chat_id, f"👋 হ্যালো {first_name}!\nআপনার অ্যাপ ওপেন করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+# ডাটাবেস কানেকশন ফাংশন
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        return conn
+    except Exception as e:
+        logging.error(f"Database connection error: {e}")
+        return None
 
-# Webhook route for Render
-@server.route("/" + BOT_TOKEN, methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
+# স্টার্ট কমান্ড
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"হ্যালো! 👋\n\nএটি আপনার বট।\nআপনার অ্যাড লিঙ্ক: {MONETAG_LINK}"
+    )
 
-@server.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=f"{WEBAPP_URL}/{BOT_TOKEN}")
-    return "Webhook set!", 200
+# ডাটাবেস টেস্ট কমান্ড
+async def dbtest(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    conn = get_db_connection()
+    if conn:
+        await update.message.reply_text("✅ ডাটাবেস কানেকশন সফল!")
+        conn.close()
+    else:
+        await update.message.reply_text("❌ ডাটাবেস কানেকশন ব্যর্থ।")
+
+# মেইন ফাংশন
+def main():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("dbtest", dbtest))
+
+    logging.info("Bot is running...")
+    app.run_polling()
 
 if __name__ == "__main__":
-    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+    main()
