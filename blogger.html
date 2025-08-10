@@ -21,7 +21,6 @@
   .history-item{background:#fafafa;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:8px}
   .note{font-size:13px;color:#666;margin-top:8px}
   .muted{color:#888;font-size:13px}
-  /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:2000}
   .modal{width:94%;max-width:720px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
   .modal-header{padding:10px 14px;background:#f7f7f7;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
@@ -34,7 +33,7 @@
   iframe.ad-iframe{width:100%;height:100%;border:0}
 </style>
 
-<!-- Monetag SDK (your provided tag) -->
+<!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js" data-zone="9678549" data-sdk="show_9678549"></script>
 
 </head>
@@ -43,68 +42,47 @@
 <header id="headerUser">👤 ইউজারের নাম</header>
 
 <div class="container">
-  <!-- HOME -->
   <section id="home" class="card">
     <div class="balance"><span id="balanceEl">💰 ০.০০ টাকা</span></div>
     <div class="points" id="pointsEl">⭐ ০ পয়েন্ট</div>
     <p class="small" style="text-align:center;margin-top:10px">স্বাগতম — এখানে আপনার ব্যালেন্স ও পয়েন্ট দেখুন।</p>
   </section>
 
-  <!-- EARN -->
   <section id="earn" class="card" style="display:none">
     <h3>আজকের আয়</h3>
     <p class="small">আপনি আজ <strong id="adsCount">০</strong> টি বিজ্ঞাপন দেখেছেন</p>
     <p class="small">প্রতি অ্যাড: <strong>১৫ পয়েন্ট</strong> — ১০০ পয়েন্ট = ১ টাকা</p>
     <p class="small">আপনার পয়েন্ট: <strong id="earnPoints">০</strong> ⭐</p>
     <p class="small">আপনার ব্যালেন্স: <strong id="earnBalance">০.০০</strong> টাকা</p>
-
     <button id="watchAdBtn" class="btn">📺 Watch Ad</button>
-
-    <div id="adHint" style="margin-top:14px;text-align:center">
-      <div class="muted">Monetag অ্যাড modal/iframe-এ লোড হবে — যদি blocked হয়, তখন নতুন ট্যাবে খুলে দেখার নির্দেশ আসবে।</div>
-    </div>
   </section>
 
-  <!-- WITHDRAW -->
   <section id="withdraw" class="card" style="display:none">
     <h3>টাকা তোলা (Withdraw)</h3>
     <p class="small">মিনিমাম <strong>১০০ টাকা</strong> হলে Withdraw করতে পারবেন</p>
     <p class="small">বর্তমান ব্যালান্স: <strong id="withdrawBalance">০.০০</strong> টাকা</p>
-
     <label class="small">নাম</label>
     <input id="w_name" type="text" placeholder="আপনার নাম" />
-
     <label class="small">বিকাশ নাম্বার</label>
     <input id="w_mobile" type="text" placeholder="০১XXXXXXXXX" />
-
-    <label class="small">পেমেন্ট মেথড</label>
-    <input type="text" value="বিকাশ" disabled style="background:#f1f1f1" />
-
     <label class="small">অ্যামাউন্ট (টাকা)</label>
     <input id="w_amount" type="number" placeholder="উদাহরণ: 100" />
-
-    <div class="note">Withdraw করলে রিকোয়েস্ট Telegram-এ নোটিফাই হবে এবং Firebase-এ <code>withdrawRequests</code> হিসেবে সেভ হবে।</div>
     <button class="btn" onclick="submitWithdraw()">💸 Withdraw সাবমিট করুন</button>
   </section>
 
-  <!-- HISTORY -->
   <section id="history" class="card" style="display:none">
     <h3>Withdraw History</h3>
     <div id="historyList" class="small"><p>লোড হচ্ছে...</p></div>
   </section>
 
-  <!-- REFER -->
   <section id="refer" class="card" style="display:none">
     <h3>Refer & Earn</h3>
     <p class="small">প্রতিটি রেফারে: <strong>৫ টাকা</strong></p>
-    <p class="small">আপনি রেফার করেছেন: <strong id="refCount">0</strong> — আয় (সম্ভাব্য): <strong id="refEarnings">0</strong> টাকা</p>
-    <p class="small">আপনার রেফার লিংক (শেয়ার করুন):</p>
+    <p class="small">আপনার রেফার লিংক:</p>
     <input id="refLink" type="text" readonly />
-    <div class="note">আপনার লিংক দিয়ে কেউ অ্যাপ ওপেন করে অ্যাড দেখলে referral নোডে লগ হবে; ক্রেডিট অ্যাডমিনের মাধ্যমে হবে।</div>
   </section>
 </div>
 
-<!-- bottom nav -->
 <div class="bottom-nav">
   <button class="active" onclick="show('home', this)">🏠 Home</button>
   <button onclick="show('earn', this)">💼 Earn</button>
@@ -113,15 +91,14 @@
   <button onclick="show('refer', this)">👥 Refer</button>
 </div>
 
-<!-- Modal for ad -->
-<div id="adModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog">
+<div id="adModal" class="modal-backdrop">
+  <div class="modal">
     <div class="modal-header">
       <strong>Advertisement</strong>
-      <button class="close-btn" onclick="closeAdModal()" title="Close">✕</button>
+      <button class="close-btn" onclick="closeAdModal()">✕</button>
     </div>
-    <div class="modal-body" id="modalBody">
-      <iframe id="adIframe" class="ad-iframe" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+    <div class="modal-body">
+      <iframe id="adIframe" class="ad-iframe"></iframe>
     </div>
     <div class="modal-footer">
       <div class="muted">অপেক্ষা করুন: <span class="countdown" id="countdown">20</span>s</div>
@@ -130,102 +107,9 @@
   </div>
 </div>
 
-<!-- Firebase + App logic -->
-<script type="module">
-/* ---------------- CONFIG (EMBEDDED) ---------------- */
-const MONETAG_LINK = "https://otieu.com/4/9683674";
-const MONETAG_ZONE_ID = "9678549";
-
-const BOT_TOKEN = "8246874186:AAGeNY1eACn8HOahy-Rog3jSwe8EKNBgl8w";
-const CHAT_ID  = "7712532566"; // admin telegram id
-
-/* ---------------- Firebase imports & config ---------------- */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  push,
-  set,
-  get,
-  child,
-  onValue
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBlXsiLG6AfOBdBY24H9yMGDbbSyUnCDSs",
-  authDomain: "earnapp-edce1.firebaseapp.com",
-  databaseURL: "https://earnapp-edce1-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "earnapp-edce1",
-  storageBucket: "earnapp-edce1.firebasestorage.app",
-  messagingSenderId: "257375665873",
-  appId: "1:257375665873:web:ffadc9ec07d5a44aac8ff0",
-  measurementId: "G-KB302QN67L"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-/* ---------------- State & user init ---------------- */
+<script>
 let points = parseInt(localStorage.getItem('points')) || 0;
 let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
-let refCount = 0;
-
-let userName = localStorage.getItem('app_user_name') || '';
-let userId = localStorage.getItem('app_user_id') || '';
-
-// Telegram WebApp detection
-const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-function getTelegramIdIfExists(){
-  try {
-    if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id){
-      return String(tg.initDataUnsafe.user.id);
-    }
-  } catch(e){}
-  return null;
-}
-
-function generateLocalId(){
-  return 'u_' + Date.now().toString(36) + '_' + Math.floor(Math.random()*9000+1000);
-}
-
-async function initUser(){
-  if(!userName){
-    userName = prompt("আপনার নাম (ঐচ্ছিক):") || "অতিথি";
-    localStorage.setItem('app_user_name', userName);
-  }
-
-  // prefer Telegram id if available (WebApp), else use stored local id or generate
-  const tId = getTelegramIdIfExists();
-  if(tId){
-    userId = 'tg_' + tId; // prefix so it's obvious it's telegram id
-    localStorage.setItem('app_user_id', userId);
-  } else {
-    userId = localStorage.getItem('app_user_id') || generateLocalId();
-    localStorage.setItem('app_user_id', userId);
-  }
-
-  // record referral if ?ref= is present (do NOT overwrite userId)
-  const urlParams = new URLSearchParams(window.location.search);
-  const refParam = urlParams.get('ref');
-  if(refParam && refParam !== userId){
-    try {
-      const r = push(ref(db, 'referrals'));
-      await set(r, { refBy: refParam, referred: userId, time: new Date().toISOString() });
-      // no automatic credit here
-    } catch(e){
-      console.warn('ref save fail', e);
-    }
-  }
-
-  document.getElementById('headerUser').innerText = `👤 ${userName}`;
-  document.getElementById('refLink').value = location.origin + location.pathname + "?ref=" + encodeURIComponent(userId);
-
-  // load referral count
-  loadRefCount();
-}
-initUser();
-
-/* ---------------- UI update ---------------- */
 function updateUI(){
   const balance = (points/100).toFixed(2);
   document.getElementById('balanceEl').innerText = `💰 ${balance} টাকা`;
@@ -234,74 +118,24 @@ function updateUI(){
   document.getElementById('earnPoints').innerText = points;
   document.getElementById('earnBalance').innerText = balance;
   document.getElementById('withdrawBalance').innerText = balance;
-  document.getElementById('refCount').innerText = refCount;
-  document.getElementById('refEarnings').innerText = (refCount * 5);
 }
 updateUI();
 
-/* ---------------- Tabs ---------------- */
-function show(id, btn){
-  document.querySelectorAll('section').forEach(s=>s.style.display='none');
-  document.getElementById(id).style.display='block';
-  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  if(id === 'history') loadHistory();
-}
-window.show = show;
+const MONETAG_LINK = "https://otieu.com/4/9683674";
 
-/* ---------------- Referral loader ---------------- */
-async function loadRefCount(){
-  try {
-    const snap = await get(child(ref(db), 'referrals'));
-    if(!snap.exists()){
-      refCount = 0;
-    } else {
-      const data = snap.val();
-      // count referrals where refBy === userId
-      refCount = Object.keys(data).map(k => data[k]).filter(r => r.refBy === userId).length;
-    }
-    updateUI();
-  } catch(e){
-    console.warn('refcount load err', e);
-    refCount = 0;
-    updateUI();
-  }
-}
-
-/* ---------------- Monetag availability check ---------------- */
-let monetagReady = false;
-function checkMonetagReady(){
-  // SDK likely exposes function show_{zone} (data-sdk value). For your zone id 9678549 name is show_9678549
-  if(typeof window.show_9678549 === 'function') return true;
-  // some SDKs attach differently — try checking window.Monetag or libtl
-  if(window.libtl || window.Monetag) return true;
-  return false;
-}
-monetagReady = checkMonetagReady();
-
-/* If SDK isn't ready yet, poll for a short period */
-let monetagPollCount = 0;
-const monetagPoll = setInterval(()=>{
-  monetagPollCount++;
-  monetagReady = checkMonetagReady();
-  if(monetagReady || monetagPollCount > 10) clearInterval(monetagPoll);
-}, 500);
-
-/* ---------------- Rewarded Ad modal logic ---------------- */
 const adModal = document.getElementById('adModal');
 const adIframe = document.getElementById('adIframe');
 const countdownEl = document.getElementById('countdown');
 const claimBtn = document.getElementById('claimBtn');
 let countdownTimer = null;
 let countdownSeconds = 20;
-let adOpenedViaNewTab = false;
 
 function openAdModal(){
   adModal.style.display = 'flex';
-  adOpenedViaNewTab = false;
   claimBtn.disabled = true;
   countdownSeconds = 20;
   countdownEl.innerText = countdownSeconds;
+  adIframe.src = MONETAG_LINK;
   clearInterval(countdownTimer);
   countdownTimer = setInterval(()=>{
     countdownSeconds--;
@@ -311,44 +145,15 @@ function openAdModal(){
       claimBtn.disabled = false;
     }
   }, 1000);
-  // try Monetag SDK function first (in-case it wants to open its own modal)
-  if(typeof window.show_9678549 === 'function'){
-    try {
-      window.show_9678549(); // Monetag SDK handles its own UI if present
-      // also load fallback iframe content so modal not blank
-      adIframe.src = MONETAG_LINK;
-    } catch(e){
-      adIframe.src = MONETAG_LINK;
-    }
-  } else {
-    // load iframe (may be blocked by X-Frame-Options)
-    adIframe.src = MONETAG_LINK;
-    // set onerror to fallback open new tab
-    adIframe.onerror = function(){
-      if(!adOpenedViaNewTab){
-        adOpenedViaNewTab = true;
-        window.open(MONETAG_LINK, '_blank');
-        const mb = document.getElementById('modalBody');
-        mb.innerHTML = '<div style="padding:10px;color:#000;background:#fff;border-radius:6px;">অ্যাডটি নতুন ট্যাবে খুলেছে — অ্যাডটি দেখার পর ফিরে এসে <strong>Claim Reward</strong> চাপুন।</div>';
-      }
-    };
-  }
 }
-
 function closeAdModal(){
   adModal.style.display = 'none';
   clearInterval(countdownTimer);
-  adIframe.src = 'about:blank';
-  // restore iframe in modalBody if it was replaced
-  const mb = document.getElementById('modalBody');
-  if(!mb.querySelector('#adIframe')){
-    mb.innerHTML = '';
-    mb.appendChild(adIframe);
-  }
+  adIframe.src = '';
 }
 
-/* Claim reward */
-async function claimReward(){
+document.getElementById('watchAdBtn').addEventListener('click', openAdModal);
+claimBtn.addEventListener('click', ()=> {
   if(claimBtn.disabled) return;
   const earnedPoints = 15;
   points += earnedPoints;
@@ -356,148 +161,21 @@ async function claimReward(){
   localStorage.setItem('points', points);
   localStorage.setItem('adsWatched', adsWatched);
   updateUI();
-
-  // write audit record to Firebase
-  try {
-    const aRef = push(ref(db, 'adsHistory'));
-    await set(aRef, { userId, userName, points: earnedPoints, ts: new Date().toISOString() });
-  } catch(e){ console.warn('adsHistory save failed', e); }
-
-  // notify admin via Telegram
-  const text = `🏆 Earn Complete\nUser: ${userName}\nUserID: ${userId}\nPoints Earned: +${earnedPoints}\nTotal Points (client): ${points}`;
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`)
-    .catch(e=>console.warn('Telegram earn notify failed', e));
-
+  alert(`আপনি ${earnedPoints} পয়েন্ট পেয়েছেন!`);
   closeAdModal();
-  alert('আপনি পয়েন্ট পেয়েছেন! (ইন্টারফেসে আপডেট হয়েছে)');
-}
-
-/* ---------------- Wire Watch Ad button (with Monetag ready check) ---------------- */
-document.addEventListener('DOMContentLoaded', ()=>{
-  const btn = document.getElementById('watchAdBtn');
-  btn.addEventListener('click', async ()=>{
-    // ensure SDK has had time to initialize — if not ready, still open modal with iframe fallback
-    monetagReady = checkMonetagReady();
-    if(monetagReady){
-      // if SDK provides show_9678549 it might handle UI internally; still open modal as visual container
-      openAdModal();
-    } else {
-      // not ready: open modal with iframe fallback (or open new tab)
-      openAdModal();
-    }
-  });
-
-  // claim button listener
-  claimBtn.addEventListener('click', claimReward);
-
-  // close on ESC
-  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeAdModal(); });
 });
 
-/* ---------------- Withdraw submit ---------------- */
-window.submitWithdraw = async function(){
-  const name = document.getElementById('w_name').value.trim();
-  const mobile = document.getElementById('w_mobile').value.trim();
-  const amount = parseInt(document.getElementById('w_amount').value, 10);
-  const currentBalance = Math.floor(points/100);
-
-  if(!name || !mobile || isNaN(amount) || amount <= 0){
-    alert('সব ফিল্ড সঠিকভাবে পূরণ করুন।');
-    return;
-  }
-  if(currentBalance < 100){
-    alert('Withdraw করার জন্য আপনার ব্যালান্স কমপক্ষে ১০০ টাকা হতে হবে।');
-    return;
-  }
-  if(amount > currentBalance){
-    alert('আপনি আপনার ব্যালান্সের বেশি তুলতে পারবেন না।');
-    return;
-  }
-  if(amount < 100){
-    alert('প্রতি রিকোয়েস্টে ন্যূনতম ১০০ টাকা দিন।');
-    return;
-  }
-
-  const now = new Date();
-  const entry = {
-    userId,
-    userName,
-    name,
-    mobile,
-    method: 'bKash',
-    amount,
-    status: 'pending',
-    timestamp: now.toISOString(),
-    dateString: now.toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
-  };
-
-  try {
-    const wRef = push(ref(db, 'withdrawRequests'));
-    await set(wRef, entry);
-
-    // Telegram notify
-    const message = `📢 নতুন Withdraw রিকোয়েস্ট!\nনাম: ${name}\nইউজার: ${userName}\nআইডি: ${userId}\nপেমেন্ট: bKash\nনাম্বার: ${mobile}\nটাকা: ${amount} টাকা\nসময়: ${entry.dateString}`;
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`)
-      .catch(e=>console.warn('Telegram withdraw notify failed', e));
-
-    // deduct local points
-    const deductPoints = amount * 100;
-    points = Math.max(0, points - deductPoints);
-    localStorage.setItem('points', points);
-    updateUI();
-
-    alert('✅ Withdraw রিকোয়েস্ট সফলভাবে জমা হয়েছে। অ্যাডমিন শীঘ্রই যোগাযোগ করবে।');
-    document.getElementById('w_name').value = '';
-    document.getElementById('w_mobile').value = '';
-    document.getElementById('w_amount').value = '';
-
-  } catch(err){
-    console.error('withdraw error', err);
-    alert('❌ রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে — পরে আবার চেষ্টা করুন।');
-  }
-};
-
-/* ---------------- Load history (user-specific) ---------------- */
-async function loadHistory(){
-  const out = document.getElementById('historyList');
-  out.innerHTML = '<p class="small">লোড হচ্ছে...</p>';
-  try {
-    const snap = await get(child(ref(db), 'withdrawRequests'));
-    if(!snap.exists()){
-      out.innerHTML = '<p class="small">কোনো রেকর্ড পাওয়া যায়নি।</p>';
-      return;
-    }
-    const data = snap.val();
-    const arr = Object.keys(data).map(k=>({ id:k, ...data[k] }))
-                .filter(x=>x.userId === userId)
-                .sort((a,b)=> b.timestamp.localeCompare(a.timestamp));
-    if(arr.length === 0){
-      out.innerHTML = '<p class="small">আপনার কোনো Withdraw রেকর্ড নেই।</p>';
-      return;
-    }
-    out.innerHTML = '';
-    arr.forEach(h=>{
-      const d = document.createElement('div');
-      d.className = 'history-item';
-      d.innerHTML = `<div><strong>${h.amount} টাকা</strong> — <span class="small">${h.dateString}</span></div>
-                     <div class="small">পেমেন্ট: ${h.method} — নাম্বার: ${h.mobile}</div>
-                     <div class="small">Status: ${h.status}</div>`;
-      out.appendChild(d);
-    });
-  } catch(e){
-    console.error('history load', e);
-    out.innerHTML = '<p class="small">লোডে সমস্যা হয়েছে।</p>';
-  }
+function show(id, btn){ 
+  document.querySelectorAll('section').forEach(s=>s.style.display='none'); 
+  document.getElementById(id).style.display='block'; 
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active')); 
+  if(btn) btn.classList.add('active'); 
 }
-window.loadHistory = loadHistory;
 
-/* ---------------- Live update listener ---------------- */
-onValue(ref(db, 'withdrawRequests'), snapshot=>{
-  if(document.getElementById('history').style.display === 'block') loadHistory();
-});
-
-/* ---------------- initial UI (safe) ---------------- */
-updateUI();
+function submitWithdraw(){
+  alert('এই ডেমো ভার্সনে Withdraw রিকোয়েস্ট যাবে না — সার্ভার লাগবে।');
+}
 </script>
+
 </body>
 </html>
